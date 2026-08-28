@@ -1,0 +1,14 @@
+{
+  "css.lint.unknownAtRules": "ignore",
+  "python.defaultInterpreterPath": "E:\\anaconda3\\envs\\venture-ai\\python.exe",
+  "python.analysis.extraPaths": [
+    "./backend",
+    "./backend/app",
+    "E:\\anaconda3\\envs\\venture-ai\\Lib\\site-packages"
+  ],
+  "python.autoComplete.extraPaths": [
+    "./backend",
+    "./backend/app",
+    "E:\\anaconda3\\envs\\venture-ai\\Lib\\site-packages"
+  ]
+}

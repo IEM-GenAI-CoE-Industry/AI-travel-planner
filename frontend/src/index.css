@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #001e40;
+  --color-primary-container: #003366;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #799dd6;
+  --color-secondary: #00696b;
+  --color-secondary-container: #56f5f8;
+  --color-secondary-fixed-dim: #2ddbde;
+  --color-on-secondary: #ffffff;
+  --color-on-secondary-container: #006e70;
+  --color-surface: #f9f9ff;
+  --color-surface-bright: #f9f9ff;
+  --color-surface-dim: #cfdaf1;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f0f3ff;
+  --color-surface-container: #e7eeff;
+  --color-surface-container-high: #dee8ff;
+  --color-surface-container-highest: #d8e3fa;
+  --color-on-surface: #111c2c;
+  --color-on-surface-variant: #43474f;
+  --color-background: #f9f9ff;
+  --color-on-background: #111c2c;
+  --color-outline: #737780;
+  --color-outline-variant: #c3c6d1;
+  --color-tertiary: #1f1e19;
+  --color-tertiary-container: #34332e;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+
+  --spacing-margin-mobile: 20px;
+  --spacing-margin-desktop: 64px;
+  --spacing-gutter: 24px;
+  --spacing-container-max: 1280px;
+  --spacing-base: 8px;
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .ambient-shadow {
+    box-shadow: 0 10px 30px -5px rgba(0, 30, 64, 0.12), 0 4px 12px -2px rgba(0, 30, 64, 0.08);
+  }
+
+  .timeline-line {
+    position: absolute;
+    left: 20px;
+    top: 40px;
+    bottom: 40px;
+    width: 2px;
+    background-color: #003366;
+    z-index: 0;
+  }
+
+  .timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #00696b;
+    border: 2px solid white;
+    position: absolute;
+    left: -6px;
+    top: 24px;
+    z-index: 10;
+  }
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f0f3ff;
+}
+::-webkit-scrollbar-thumb {
+  background: #737780;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #003366;
+}

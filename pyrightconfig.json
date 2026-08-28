@@ -1,0 +1,19 @@
+{
+  "include": [
+    "backend"
+  ],
+  "extraPaths": [
+    "backend",
+    "backend/app",
+    "E:\\anaconda3\\envs\\venture-ai\\Lib\\site-packages"
+  ],
+  "executionEnvironments": [
+    {
+      "root": "backend",
+      "extraPaths": [
+        "app",
+        "E:\\anaconda3\\envs\\venture-ai\\Lib\\site-packages"
+      ]
+    }
+  ]
+}

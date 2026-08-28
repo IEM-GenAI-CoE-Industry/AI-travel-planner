@@ -1,0 +1,117 @@
+# ==========================================
+# Frontend & Node Dependencies
+# ==========================================
+node_modules/
+**/node_modules/
+.pnpm-store/
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# Build & Distribution Outputs
+# ==========================================
+dist/
+**/dist/
+dist-ssr/
+*.local
+
+# ==========================================
+# Python & Conda Artifacts
+# ==========================================
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+**/env/
+venv/
+**/venv/
+.venv/
+**/.venv/
+ENV/
+env.bak/
+venv.bak/
+conda-bld/
+.conda/
+backend/condaenv.*
+condaenv.*
+
+# ==========================================
+# Testing & Coverage Reports
+# ==========================================
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+nosetests.xml
+coverage.xml
+
+# ==========================================
+# Build & Package Distribution
+# ==========================================
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Logs, Caches & Temporary Files
+# ==========================================
+*.log
+.cache/
+**/.cache/
+.vite/
+**/.vite/
+.eslintcache
+.stylelintcache
+*.tmp
+*.temp
+
+# ==========================================
+# Environment Variables & Secrets
+# ==========================================
+.env
+.env.*
+!.env.example
+
+# ==========================================
+# IDE & Editor Settings
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+
+# ==========================================
+# Operating System Metadata
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
