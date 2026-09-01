@@ -1,72 +1,113 @@
 from datetime import datetime
+from typing import Optional, List, Dict, Any
 from fastapi import APIRouter
-from app.data.mock_data import ChatRequest, ChatResponse, SAMPLE_ITINERARY_DATA, ItineraryModel
+from pydantic import BaseModel
+from app.db.mongodb import (
+    get_chat_history, 
+    save_chat_message, 
+    get_traveler_profile, 
+    save_traveler_profile,
+    is_mongo_connected,
+    DATABASE_NAME,
+    MONGO_URI
+)
+from app.services.llm_service import run_conversational_agent, generate_dynamic_itinerary_from_llm
+from app.schemas.profile import TravelerProfile
+from app.data.mock_data import ItineraryModel
 
 router = APIRouter(prefix="/api/chat", tags=["Chat"])
+
+class ChatRequest(BaseModel):
+    message: str
+    thread_id: Optional[str] = "default-thread"
+
+class ChatResponse(BaseModel):
+    sender: str
+    timestamp: str
+    text: str
+    suggestedPills: List[str]
+    currentProfile: Dict[str, Any]
+    generatedTrip: Optional[ItineraryModel] = None
 
 @router.post("", response_model=ChatResponse)
 @router.post("/", response_model=ChatResponse)
 async def handle_chat(payload: ChatRequest):
-    query_lower = payload.message.lower()
-    
-    response_text = ""
-    generated_trip = None
+    thread_id = payload.thread_id or "default-thread"
 
-    if any(k in query_lower for k in ["udaipur", "rajasthan", "palace", "lake"]):
-        response_text = "I've generated a bespoke 6-Day Royal Udaipur & Lake Pichola Retreat for your group! It includes heritage luxury stays at Taj Lake Palace, sunset shikara cruises to Jagmandir, and authentic Mewari fine dining at Ambrai."
-        generated_trip = SAMPLE_ITINERARY_DATA
-    elif any(k in query_lower for k in ["kerala", "backwater", "houseboat", "munnar"]):
-        response_text = "Kerala is an enchanting choice! I've curated a 7-Day Backwater Houseboat & Munnar Tea Estate Itinerary featuring private Alleppey cruises, authentic Ayurvedic wellness treatments, and tea garden walking tours."
-        generated_trip = ItineraryModel(
-            id="kerala-backwaters",
-            title="7-Day Kerala Backwaters & Tea Gardens Escapade",
-            destination="Kerala, India",
-            startDate="Nov 20, 2026",
-            endDate="Nov 27, 2026",
-            travelers=SAMPLE_ITINERARY_DATA.travelers,
-            budget={"totalEstimated": 58000, "spent": 38000},
-            weather={"temp": "28°C / 82°F", "condition": "Warm & Tropical", "icon": "wb_sunny"},
-            days=SAMPLE_ITINERARY_DATA.days
-        )
-    elif any(k in query_lower for k in ["goa", "beach", "yacht"]):
-        response_text = "South Goa offers exquisite coastal luxury and tranquil heritage charm! Here is a 5-Day Riviera & Private Yacht Charter itinerary, including Portuguese villa walks in Fontainhas and luxury beachfront resorts."
-        generated_trip = ItineraryModel(
-            id="goa-riviera",
-            title="5-Day South Goa Luxury Riviera & Yacht Getaway",
-            destination="Goa, India",
-            startDate="Dec 05, 2026",
-            endDate="Dec 10, 2026",
-            travelers=SAMPLE_ITINERARY_DATA.travelers,
-            budget={"totalEstimated": 62000, "spent": 41000},
-            weather={"temp": "29°C / 84°F", "condition": "Sunny Beach Breeze", "icon": "wb_sunny"},
-            days=SAMPLE_ITINERARY_DATA.days
-        )
-    elif any(k in query_lower for k in ["manali", "himachal", "mountain", "snow"]):
-        response_text = "The Himalayas are breathtaking! I've planned a 6-Day Manali & Solang Alpine Retreat with boutique cedar chalets, Solang valley ropeway views, and trout dining in Old Manali."
-        generated_trip = ItineraryModel(
-            id="manali-alpine",
-            title="6-Day Manali Alpine & Solang Retreat",
-            destination="Manali, Himachal Pradesh, India",
-            startDate="Dec 18, 2026",
-            endDate="Dec 24, 2026",
-            travelers=SAMPLE_ITINERARY_DATA.travelers,
-            budget={"totalEstimated": 52000, "spent": 34000},
-            weather={"temp": "12°C / 53°F", "condition": "Crisp Alpine Air", "icon": "ac_unit"},
-            days=SAMPLE_ITINERARY_DATA.days
-        )
-    else:
-        response_text = f"I've analyzed your local travel request (\"{payload.message}\") and created a custom Indian travel concierge itinerary featuring boutique local stays, private heritage transfers, and authentic regional culinary experiences."
-        generated_trip = SAMPLE_ITINERARY_DATA
+    # 1. Fetch persistent state from MongoDB
+    current_profile = await get_traveler_profile(thread_id)
+    history = await get_chat_history(thread_id)
+
+    # 2. Record incoming user message
+    user_msg_entry = {"role": "user", "content": payload.message, "timestamp": datetime.utcnow().isoformat()}
+    await save_chat_message(thread_id, user_msg_entry)
+    
+    # 3. Format history for Open-Source LLM (Sliding Window: last 10 messages)
+    llm_history = [{"role": m["role"], "content": m["content"]} for m in history[-10:]]
+    llm_history.append({"role": "user", "content": payload.message})
+
+    # 4. Run Pure Open-Source LLM Conversational Agent (Zero generic hardcoding)
+    agent_output = await run_conversational_agent(llm_history, current_profile)
+    reply_text = agent_output["reply_text"]
+    delta_profile: Optional[TravelerProfile] = agent_output["extracted_profile_delta"]
+
+    # 5. State Reconciliation: Merge extracted delta into current profile snapshot
+    if delta_profile:
+        delta_dict = delta_profile.model_dump(exclude_unset=True, exclude_none=True)
+        for key, val in delta_dict.items():
+            if isinstance(val, list):
+                combined = list(set(current_profile.get(key, []) + val))
+                current_profile[key] = combined
+            else:
+                current_profile[key] = val
+
+        # Persist updated profile in MongoDB
+        await save_traveler_profile(thread_id, current_profile)
+
+    # 6. Save assistant reply to MongoDB chat history
+    assistant_msg_entry = {"role": "assistant", "content": reply_text, "timestamp": datetime.utcnow().isoformat()}
+    await save_chat_message(thread_id, assistant_msg_entry)
+
+    # 7. Generate a 100% dynamic itinerary tailored strictly to the user's destination
+    destination_str = current_profile.get("destination")
+    generated_trip = None
+    if destination_str:
+        generated_trip = await generate_dynamic_itinerary_from_llm(destination_str, current_profile, llm_history)
 
     return ChatResponse(
         sender="Venture Concierge",
         timestamp=datetime.now().strftime("%I:%M %p").lower(),
-        text=response_text,
+        text=reply_text,
+        currentProfile=current_profile,
         suggestedPills=[
             "Customize budget breakdown",
-            "Add royal heritage walk",
+            "View day-by-day stops",
             "Compare boutique stays",
-            "Share with travel group"
+            "Explore dining & activities"
         ],
         generatedTrip=generated_trip
     )
+
+# --- Database Inspection Endpoints ---
+
+@router.get("/db-status")
+async def get_db_status():
+    """Inspect MongoDB connection status."""
+    return {
+        "is_connected": is_mongo_connected,
+        "database": DATABASE_NAME,
+        "uri": MONGO_URI.split("@")[-1] if "@" in MONGO_URI else MONGO_URI,
+        "storage_mode": "Live MongoDB Database" if is_mongo_connected else "In-Memory Persistent Cache"
+    }
+
+@router.get("/profile/{thread_id}")
+async def inspect_profile(thread_id: str = "default-thread"):
+    """View the live extracted traveler profile saved in MongoDB."""
+    profile = await get_traveler_profile(thread_id)
+    return {"thread_id": thread_id, "traveler_profile": profile}
+
+@router.get("/history/{thread_id}")
+async def inspect_history(thread_id: str = "default-thread"):
+    """View the full conversation thread history saved in MongoDB."""
+    history = await get_chat_history(thread_id)
+    return {"thread_id": thread_id, "total_messages": len(history), "messages": history}

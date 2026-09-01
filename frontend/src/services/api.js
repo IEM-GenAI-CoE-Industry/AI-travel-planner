@@ -1,26 +1,39 @@
 const API_BASE = '/api';
 
 export const apiService = {
-  // Send message to AI Concierge
-  async sendChatMessage(message) {
-    const res = await fetch(`${API_BASE}/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
-    });
-    if (!res.ok) throw new Error('Failed to post chat message');
-    return res.json();
+  // Send message to Venture AI Concierge (with 60s timeout for local LLM models)
+  async sendChatMessage(message, threadId = 'default-thread') {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    try {
+      const res = await fetch(`${API_BASE}/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, thread_id: threadId }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error(`HTTP ${res.status}: Failed to post chat message`);
+      return await res.json();
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        throw new Error('Local model is still generating. Please try sending again.');
+      }
+      throw err;
+    }
   },
 
-  // Get current trip itinerary
-  async getItinerary(tripId = 'udaipur-royal-getaway') {
+  // Get active trip itinerary
+  async getItinerary(tripId = 'active') {
     const res = await fetch(`${API_BASE}/itineraries/${tripId}`);
     if (!res.ok) throw new Error('Failed to fetch itinerary');
     return res.json();
   },
 
   // Add activity item
-  async addActivity(tripId, dayNumber, activityData) {
+  async addActivity(tripId = 'active', dayNumber, activityData) {
     const res = await fetch(`${API_BASE}/itineraries/${tripId}/activities`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -30,15 +43,15 @@ export const apiService = {
     return res.json();
   },
 
-  // Get voting data
-  async getVotingData(tripId = 'udaipur-royal-getaway') {
+  // Get active group voting data
+  async getVotingData(tripId = 'active') {
     const res = await fetch(`${API_BASE}/voting/${tripId}`);
     if (!res.ok) throw new Error('Failed to fetch voting data');
     return res.json();
   },
 
-  // Cast vote
-  async castVote(tripId = 'udaipur-royal-getaway', candidateId, voteType, user = 'Alex Rivera') {
+  // Cast vote on active trip
+  async castVote(tripId = 'active', candidateId, voteType, user = 'Alex Rivera') {
     const res = await fetch(`${API_BASE}/voting/${tripId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -48,7 +61,7 @@ export const apiService = {
     return res.json();
   },
 
-  // Get destinations
+  // Get featured destinations
   async getDestinations() {
     const res = await fetch(`${API_BASE}/destinations`);
     if (!res.ok) throw new Error('Failed to fetch destinations');

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApp } from '../../context/AppContext';
-import { MessageSquare, Users, MapPin, Sparkles } from 'lucide-react';
+import { MessageSquare, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '../common/Button';
 
 export const HowItWorks = () => {
@@ -8,66 +8,65 @@ export const HowItWorks = () => {
 
   const steps = [
     {
-      step: "01",
-      icon: MessageSquare,
-      title: "Chat with AI Concierge",
-      desc: "Prompt Venture AI with your budget, duration, and dream experiences. Get a complete itinerary draft in seconds."
+      num: "01",
+      title: "Prompt Your Travel Vision",
+      desc: "Tell Venture AI your group size, budget, and vibe (e.g. 'Royal heritage in Udaipur with private boat rides')."
     },
     {
-      step: "02",
-      icon: Users,
-      title: "Vote & Refine with Companions",
-      desc: "Invite your travel group. Companions upvote stay and activity candidates to finalize the perfect itinerary effortlessly."
+      num: "02",
+      title: "AI Crafts Structured Plan",
+      desc: "Receive a day-by-day interactive itinerary complete with curated hotels, authentic dining, and route maps."
     },
     {
-      step: "03",
-      icon: MapPin,
-      title: "Explore with Live Maps",
-      desc: "Access your interactive daily route map, location markers, reservation details, and weather guidance on the go."
+      num: "03",
+      title: "Vote & Coordinate as a Group",
+      desc: "Companions upvote their favorite palace stays and sunset cruises. Consensus locks in your reservations."
     }
   ];
 
   return (
     <section className="py-20 bg-background">
       <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-secondary">Simple 3-Step Process</span>
-          <h2 className="text-3xl md:text-4xl font-bold text-primary tracking-tight mt-1">
-            How Venture AI Works
-          </h2>
-        </div>
+        <div className="bg-linear-to-r from-primary to-primary-container text-white rounded-3xl p-8 md:p-14 shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary-fixed-dim/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          {steps.map((item, idx) => {
-            const Icon = item.icon;
-            return (
-              <div key={idx} className="relative bg-surface-container-lowest p-8 rounded-2xl ambient-shadow border border-outline-variant/30 text-center">
-                <div className="absolute top-4 right-6 text-3xl font-extrabold text-primary/10">
-                  {item.step}
+          <div className="relative z-10">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <span className="text-xs font-bold uppercase tracking-widest text-secondary-fixed-dim">Effortless Workflow</span>
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2">
+                How Venture AI Works
+              </h2>
+              <p className="text-on-primary-container text-sm mt-3">
+                From idea to coordinated group adventure in 3 seamless steps.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+              {steps.map((step, idx) => (
+                <div key={idx} className="bg-primary/40 backdrop-blur-md p-6 rounded-2xl border border-white/10 relative">
+                  <span className="text-4xl font-black text-secondary-fixed-dim/40 absolute top-4 right-4">
+                    {step.num}
+                  </span>
+                  <div className="w-9 h-9 rounded-xl bg-secondary-fixed-dim text-primary flex items-center justify-center font-bold text-sm mb-4 shadow-sm">
+                    {step.num}
+                  </div>
+                  <h3 className="text-lg font-bold mb-2 text-white">{step.title}</h3>
+                  <p className="text-xs text-on-primary-container leading-relaxed">{step.desc}</p>
                 </div>
+              ))}
+            </div>
 
-                <div className="w-14 h-14 rounded-2xl bg-secondary-container text-on-secondary-container flex items-center justify-center mx-auto mb-6 shadow-sm">
-                  <Icon className="w-7 h-7 text-secondary" />
-                </div>
-
-                <h3 className="text-xl font-bold text-primary mb-3">{item.title}</h3>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-16 text-center">
-          <Button
-            variant="primary"
-            size="lg"
-            onClick={() => setActiveTab('chat')}
-            icon={Sparkles}
-          >
-            Start Planning Your Journey
-          </Button>
+            <div className="text-center">
+              <Button 
+                variant="turquoise"
+                size="lg"
+                onClick={() => setActiveTab('chat')}
+                icon={Sparkles}
+              >
+                Start Planning Free Now
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </section>

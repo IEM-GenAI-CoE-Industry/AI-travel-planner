@@ -1,25 +1,23 @@
 import React from 'react';
-import { useApp } from '../../context/AppContext';
-import { ChevronRight } from 'lucide-react';
+import { Compass } from 'lucide-react';
 
-export const PromptSuggestions = ({ pills }) => {
-  const { sendChatMessage } = useApp();
+export const PromptSuggestions = ({ suggestions, onSelect }) => {
+  if (!suggestions || suggestions.length === 0) return null;
 
   return (
-    <div className="pt-3 border-t border-outline-variant/20 mt-3">
-      <span className="text-[11px] font-semibold text-outline block mb-2">Suggested Actions:</span>
-      <div className="flex flex-wrap gap-2">
-        {pills.map((pill, idx) => (
-          <button
-            key={idx}
-            onClick={() => sendChatMessage(pill)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container text-xs font-medium text-primary hover:bg-secondary-container hover:text-on-secondary-container transition border border-outline-variant/30 active:scale-95"
-          >
-            <span>{pill}</span>
-            <ChevronRight className="w-3 h-3 text-secondary" />
-          </button>
-        ))}
-      </div>
+    <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+      <span className="text-[11px] font-semibold text-outline whitespace-nowrap flex items-center gap-1">
+        <Compass className="w-3.5 h-3.5" /> Suggestions:
+      </span>
+      {suggestions.map((s, idx) => (
+        <button
+          key={idx}
+          onClick={() => onSelect(s)}
+          className="whitespace-nowrap px-3 py-1 bg-surface-container hover:bg-surface-container-high text-xs text-on-surface-variant hover:text-primary rounded-full transition border border-outline-variant/30 active:scale-95"
+        >
+          {s}
+        </button>
+      ))}
     </div>
   );
 };

@@ -1,89 +1,84 @@
 import React from 'react';
-import { ThumbsUp, ThumbsDown, MapPin, Check } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, MapPin, Sparkles, Check } from 'lucide-react';
 import { ConsensusMeter } from './ConsensusMeter';
-import { Badge } from '../common/Badge';
 
 export const VotingCard = ({ candidate, onVote }) => {
-  const { id, category, title, location, pricePerNight, image, features, consensusScore, votes, status } = candidate;
-
-  const myVote = votes?.find(v => v.user === "Alex Rivera")?.vote;
-
-  const getStatusBadge = (s) => {
-    if (s === "CONFIRMED") return <Badge variant="success">Confirmed Stop</Badge>;
-    if (s === "TOP_PICK") return <Badge variant="turquoise">Top Pick</Badge>;
-    return <Badge variant="warning">Voting Open</Badge>;
-  };
+  const isUpvotedByMe = candidate.votes?.some(v => v.user === "Alex Rivera" && v.vote === "UP");
+  const isDownvotedByMe = candidate.votes?.some(v => v.user === "Alex Rivera" && v.vote === "DOWN");
 
   return (
-    <div className="bg-surface-container-lowest rounded-3xl p-6 ambient-shadow border border-outline-variant/30 hover:border-secondary/40 transition-all duration-300 flex flex-col justify-between">
+    <div className="bg-surface-container-lowest rounded-3xl overflow-hidden ambient-shadow border border-outline-variant/30 flex flex-col justify-between group">
       <div>
-        {/* Card Header & Status */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          <Badge variant="info">{category}</Badge>
-          {getStatusBadge(status)}
-        </div>
+        {/* Card Image */}
+        <div className="relative h-48 overflow-hidden">
+          <img
+            src={candidate.image}
+            alt={candidate.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+          <div className="absolute top-3 left-3">
+            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-primary/90 text-white backdrop-blur-xs uppercase tracking-wider">
+              {candidate.category}
+            </span>
+          </div>
 
-        {/* Option Image */}
-        <div className="relative h-48 rounded-2xl overflow-hidden mb-4">
-          <img src={image} alt={title} className="w-full h-full object-cover" />
-          <div className="absolute top-3 right-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm">
-            {pricePerNight}
+          <div className="absolute bottom-3 right-3 bg-surface/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-primary shadow-xs">
+            {candidate.pricePerNight}
           </div>
         </div>
 
-        <h3 className="font-bold text-primary text-lg mb-1">{title}</h3>
-        <p className="text-xs text-secondary font-medium flex items-center gap-1 mb-4">
-          <MapPin className="w-3.5 h-3.5" /> {location}
-        </p>
+        {/* Card Content */}
+        <div className="p-5 space-y-4">
+          <div>
+            <h4 className="text-base font-bold text-primary mb-1">{candidate.title}</h4>
+            <p className="text-xs text-secondary font-medium flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" /> {candidate.location}
+            </p>
+          </div>
 
-        {/* Key Features list */}
-        <ul className="space-y-1.5 mb-6 text-xs text-on-surface-variant">
-          {features?.map((feat, idx) => (
-            <li key={idx} className="flex items-center gap-2">
-              <Check className="w-3.5 h-3.5 text-secondary shrink-0" />
-              <span>{feat}</span>
-            </li>
-          ))}
-        </ul>
+          {/* Features List */}
+          <ul className="space-y-1 text-xs text-on-surface-variant">
+            {candidate.features?.map((feat, idx) => (
+              <li key={idx} className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-secondary shrink-0" />
+                <span>{feat}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Consensus Meter */}
+          <ConsensusMeter score={candidate.consensusScore} status={candidate.status} />
+        </div>
       </div>
 
-      {/* Consensus Meter & Actions */}
-      <div className="pt-4 border-t border-outline-variant/20 space-y-4">
-        <ConsensusMeter score={consensusScore} status={status} />
+      {/* Voting Actions Footer */}
+      <div className="p-4 bg-surface-container-low border-t border-outline-variant/20 flex items-center justify-between gap-3">
+        <span className="text-xs text-outline font-medium">Your Vote:</span>
 
-        <div className="flex items-center justify-between gap-3">
-          {/* Vote Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onVote(id, 'UP')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition ${
-                myVote === 'UP'
-                  ? 'bg-secondary text-white shadow-sm'
-                  : 'bg-surface-container hover:bg-secondary-container text-primary'
-              }`}
-            >
-              <ThumbsUp className="w-4 h-4" />
-              <span>Approve</span>
-            </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onVote(candidate.id, 'DOWN')}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 ${
+              isDownvotedByMe
+                ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                : 'bg-surface-container-lowest text-outline hover:text-rose-700 hover:bg-rose-50 border border-outline-variant/30'
+            }`}
+          >
+            <ThumbsDown className="w-3.5 h-3.5" />
+            <span>Pass</span>
+          </button>
 
-            <button
-              onClick={() => onVote(id, 'DOWN')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition ${
-                myVote === 'DOWN'
-                  ? 'bg-error text-white shadow-sm'
-                  : 'bg-surface-container hover:bg-error-container text-on-surface-variant'
-              }`}
-            >
-              <ThumbsDown className="w-4 h-4" />
-              <span>Pass</span>
-            </button>
-          </div>
-
-          {/* Traveler Vote Count */}
-          <div className="text-right">
-            <span className="text-[10px] text-outline block">Group votes</span>
-            <span className="text-xs font-bold text-primary">{votes?.length || 0} cast</span>
-          </div>
+          <button
+            onClick={() => onVote(candidate.id, 'UP')}
+            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold transition active:scale-95 ${
+              isUpvotedByMe
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'bg-primary text-white hover:bg-primary-container shadow-xs'
+            }`}
+          >
+            <ThumbsUp className="w-3.5 h-3.5 text-secondary-fixed-dim" />
+            <span>{isUpvotedByMe ? 'Approved' : 'Vote Yes'}</span>
+          </button>
         </div>
       </div>
     </div>

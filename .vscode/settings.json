@@ -1,5 +1,13 @@
 {
   "css.lint.unknownAtRules": "ignore",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
   "python.defaultInterpreterPath": "E:\\anaconda3\\envs\\venture-ai\\python.exe",
   "python.analysis.extraPaths": [
     "./backend",

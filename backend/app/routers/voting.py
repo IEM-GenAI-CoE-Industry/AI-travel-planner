@@ -8,7 +8,9 @@ candidates_state = [c.model_copy(deep=True) for c in VOTING_CANDIDATES_DATA]
 activity_feed_state = [f.model_copy(deep=True) for f in INITIAL_FEED_DATA]
 
 @router.get("/{trip_id}")
-async def get_voting_data(trip_id: str):
+@router.get("/active")
+@router.get("/")
+async def get_voting_data(trip_id: str = "active"):
     return {
         "candidates": candidates_state,
         "activityFeed": activity_feed_state

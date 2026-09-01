@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, Field
 
-# --- Pydantic Schemas ---
+# --- Pydantic Models for Itinerary & Destinations ---
 
 class DestinationModel(BaseModel):
     id: str
@@ -97,17 +97,6 @@ class FeedItem(BaseModel):
     time: str
     comment: Optional[str] = None
 
-class ChatRequest(BaseModel):
-    message: str
-    promptType: Optional[str] = None
-
-class ChatResponse(BaseModel):
-    sender: str
-    timestamp: str
-    text: str
-    suggestedPills: List[str]
-    generatedTrip: Optional[ItineraryModel] = None
-
 class VoteRequest(BaseModel):
     candidateId: str
     voteType: str
@@ -118,7 +107,7 @@ class AddActivityRequest(BaseModel):
     newActivity: Dict[str, Any]
 
 
-# --- Seed Data ---
+# --- Seed Catalog for Indian Domestic Travel ---
 
 DESTINATIONS_DATA = [
     DestinationModel(

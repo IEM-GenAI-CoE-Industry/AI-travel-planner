@@ -1,68 +1,72 @@
 import React from 'react';
-import { MessageSquare, MapPin, Users, DollarSign, CloudSun, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, MapPin, Users, PieChart, ShieldCheck, Zap } from 'lucide-react';
 
 export const FeaturesSection = () => {
   const features = [
     {
       icon: MessageSquare,
-      title: "Conversational AI Concierge",
-      desc: "Speak naturally about your domestic travel style. Venture converts open prompts into structured schedules with stays, dining, & transfers."
+      title: "AI Concierge & Chat",
+      desc: "Conversational domestic planning. Ask for royal suites in Udaipur or backwater houseboats in Kerala with instant structured replies.",
+      color: "bg-blue-50 text-blue-700"
     },
     {
       icon: MapPin,
-      title: "Interactive Route Maps",
-      desc: "Visualize every stop on high-resolution maps. Custom pin markers for heritage hotels, restaurants, and daily scenic paths."
+      title: "Leaflet Route Maps",
+      desc: "Visual pinpoint maps connecting day-by-day stops, boat cruise routes, and cultural hotspots seamlessly.",
+      color: "bg-emerald-50 text-emerald-700"
     },
     {
       icon: Users,
-      title: "Collaborative Group Voting",
-      desc: "End group chat debate. Travel companions vote up/down on stays and activities with real-time consensus percentage meters."
+      title: "Group Consensus Hub",
+      desc: "Invite travel companions to vote on hotel proposals and activities. Live consensus calculations lock in top choices.",
+      color: "bg-purple-50 text-purple-700"
     },
     {
-      icon: DollarSign,
-      title: "Live Spend Radar",
-      desc: "Track estimated vs. actual expenses across stays, activities, and dining per traveler in real time."
+      icon: PieChart,
+      title: "Spend Radar in INR",
+      desc: "Track real-time spend across Stays, Dining, and Experiences in Indian Rupees with category limits.",
+      color: "bg-amber-50 text-amber-700"
     },
     {
-      icon: CloudSun,
-      title: "Weather & Local Insights",
-      desc: "Integrated micro-climate weather forecasts and seasonal hints for optimal packing and activity timing."
+      icon: ShieldCheck,
+      title: "Direct Local Rates",
+      desc: "Vetted boutique stays and heritage properties without middleman booking commissions or inflated rates.",
+      color: "bg-teal-50 text-teal-700"
     },
     {
-      icon: CheckCircle2,
-      title: "Instant Export & Sync",
-      desc: "Export your itinerary to Google Calendar, Apple Wallet, or share a live link with friends in one click."
+      icon: Zap,
+      title: "Live Day Modification",
+      desc: "Easily add, reorder, or customize stops on your live itinerary timeline with one-click budget updates.",
+      color: "bg-rose-50 text-rose-700"
     }
   ];
 
   return (
-    <section className="py-20 bg-surface-container-low border-y border-outline-variant/20">
+    <section className="py-16 bg-surface-container-lowest border-y border-outline-variant/30">
       <div className="max-w-container-max mx-auto px-4 md:px-margin-desktop">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="text-xs font-bold uppercase tracking-wider text-secondary">Built for Seamless Travel</span>
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-xs font-bold uppercase tracking-wider text-secondary">Intelligent Travel Architecture</span>
           <h2 className="text-3xl md:text-4xl font-bold text-primary tracking-tight mt-1">
-            Engineered for Modern Local Travel Intelligence
+            Engineered for Modern Travel Groups
           </h2>
-          <p className="text-on-surface-variant text-sm mt-3 leading-relaxed">
-            From initial trip discovery to final group decisions, Venture AI keeps your entire group aligned.
+          <p className="text-on-surface-variant text-sm mt-2">
+            Eliminating endless WhatsApp debates and spreadsheets with an integrated AI travel planner.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feat, idx) => {
-            const Icon = feat.icon;
+          {features.map((f, idx) => {
+            const Icon = f.icon;
             return (
               <div 
                 key={idx}
-                className="glass-panel p-6 rounded-2xl ambient-shadow hover:-translate-y-0.5 transition-all duration-300 border border-white/80"
+                className="p-6 rounded-2xl bg-surface-container-low border border-outline-variant/30 hover:border-secondary/40 transition-all ambient-shadow group"
               >
-                <div className="w-12 h-12 rounded-xl bg-linear-to-br from-primary to-primary-container text-white flex items-center justify-center mb-5 shadow-sm">
-                  <Icon className="w-6 h-6 text-secondary-fixed-dim" />
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${f.color} shadow-xs group-hover:scale-110 transition-transform`}>
+                  <Icon className="w-6 h-6" />
                 </div>
-                <h3 className="font-bold text-primary text-lg mb-2">{feat.title}</h3>
-                <p className="text-xs text-on-surface-variant leading-relaxed">
-                  {feat.desc}
-                </p>
+                <h3 className="text-lg font-bold text-primary mb-2">{f.title}</h3>
+                <p className="text-xs text-on-surface-variant leading-relaxed">{f.desc}</p>
               </div>
             );
           })}
