@@ -1,7 +1,15 @@
 from fastapi import FastAPI
 from stripe_service import stripe
 
+from database import engine, SessionLocal
+from models import Base, Payment
+
+from pydantic import BaseModel
+
 app = FastAPI()
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 
 @app.get("/")
@@ -19,29 +27,57 @@ def stripe_test():
     }
 
 
-@app.post("/create-checkout-session")
-def create_checkout_session():
-    session = stripe.checkout.Session.create(
-        mode="payment",
-        line_items=[
-            {
-                "price_data": {
-                    "currency": "usd",
-                    "product_data": {
-                        "name": "Travel Booking"
-                    },
-                    "unit_amount": 10000,
-                },
-                "quantity": 1,
-            }
-        ],
-        success_url="http://localhost:3000/success",
-        cancel_url="http://localhost:3000/cancel",
-    )
 
-    return {
-        "checkout_url": session.url
-    }
+
+
+class PaymentRequest(BaseModel):
+    hotel_name: str
+    amount: float
+
+
+@app.post("/create-checkout-session")
+def create_checkout_session(payment: PaymentRequest):
+
+    db = SessionLocal()
+
+    try:
+        amount_in_cents = int(payment.amount * 100)
+
+        session = stripe.checkout.Session.create(
+            mode="payment",
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "usd",
+                        "product_data": {
+                            "name": payment.hotel_name
+                        },
+                        "unit_amount": amount_in_cents,
+                    },
+                    "quantity": 1,
+                }
+            ],
+            success_url="http://localhost:3000/success",
+            cancel_url="http://localhost:3000/cancel",
+        )
+
+        new_payment = Payment(
+            hotel_name=payment.hotel_name,
+            amount=payment.amount,
+            stripe_session_id=session.id,
+            payment_status="pending"
+        )
+
+        db.add(new_payment)
+        db.commit()
+
+        return {
+            "checkout_url": session.url,
+            "payment_id": new_payment.id
+        }
+
+    finally:
+        db.close()
 
 
 @app.post("/create-connected-account")
